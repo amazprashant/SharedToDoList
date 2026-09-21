@@ -1,0 +1,32 @@
+Project shared_todo_list {
+  database_type: 'PostgreSQL'
+}
+
+Table users {
+  id            uuid       [pk, default: `gen_random_uuid()`]
+  firebase_uid  varchar    [unique, not null]
+  email         varchar    [unique, not null]
+  display_name  varchar
+  created_at    timestamp  [default: `now()`]
+}
+
+Table tasks {
+  id           uuid       [pk, default: `gen_random_uuid()`]
+  title        varchar    [not null]
+  description  text
+  status       varchar    [not null, default: 'pending', note: 'pending | in_progress | done']
+  owner_id     uuid       [not null, ref: > users.id]
+  created_at   timestamp  [default: `now()`]
+  updated_at   timestamp  [default: `now()`]
+}
+
+Table task_shares {
+  id           uuid       [pk, default: `gen_random_uuid()`]
+  task_id      uuid       [not null, ref: > tasks.id]
+  shared_with  uuid       [not null, ref: > users.id]
+  shared_at    timestamp  [default: `now()`]
+
+  indexes {
+    (task_id, shared_with) [unique]
+  }
+}
